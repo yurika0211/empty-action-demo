@@ -23,13 +23,32 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3️⃣ 编译并打包 Maven 项目
+      # 3️⃣ 静态代码检查 (Checkstyle)
+      - name: Run Checkstyle
+        run: mvn checkstyle:checkstyle
+
+      # 4️⃣ 安全漏洞扫描 (Dependency Check)
+      - name: Security Scan
+        run: mvn org.owasp:dependency-check-maven:check
+
+      # 5️⃣ 编译并打包 Maven 项目
       - name: Build with Maven
         run: mvn clean package
 
-      # 4️⃣ 运行 Main 类（可选，用于测试）
+      # 6️⃣ 运行单元测试并生成覆盖率
+      - name: Run Tests & Coverage
+        run: mvn test jacoco:report
+
+      # 7️⃣ 运行 Main 类（可选，用于测试）
       - name: Run the program
         run: mvn exec:java -Dexec.mainClass="com.example.myapp.Main"
+
+      # 8️⃣ 发送通知到 Slack（示例，可选）
+      # - name: Notify Slack
+      #   uses: slackapi/slack-github-action@v1.23.0
+      #   with:
+      #     channel-id: ${{ secrets.SLACK_CHANNEL }}
+      #     slack-message: "Build & Test completed for ${{ github.repository }}"
 
   release:
     runs-on: ubuntu-latest
